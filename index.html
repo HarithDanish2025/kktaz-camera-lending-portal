@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KKTAZ Camera Lending - Student Portal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F58220;
+            scroll-behavior: smooth;
+        }
+
+        .curved-box {
+            border-radius: 24px;
+        }
+
+        .kk-purple {
+            background-color: #4B2C82;
+        }
+
+        .kk-orange {
+            background-color: #F58220;
+        }
+
+        .calendar-day {
+            aspect-ratio: 1 / 1;
+            min-height: 60px;
+            transition: all 0.2s;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        @media (min-width: 1024px) {
+            .calendar-day {
+                aspect-ratio: auto;
+                min-height: 100px;
+            }
+        }
+
+        .status-booked {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: #ef4444;
+            border: 1px solid #fca5a5;
+            cursor: not-allowed;
+        }
+
+        .status-available {
+            background-color: #f0fdf4;
+            color: #22c55e;
+            border: 1px solid #86efac;
+            cursor: pointer;
+        }
+
+        .status-available:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        .status-selected {
+            background-color: #4B2C82 !important;
+            color: white !important;
+            border-color: #4B2C82 !important;
+            z-index: 10;
+            shadow: 0 10px 15px -3px rgba(75, 44, 130, 0.4);
+        }
+
+        .status-range {
+            background-color: #ede9fe !important;
+            color: #4B2C82 !important;
+            border: 1px solid #c4b5fd !important;
+        }
+
+        .status-past {
+            background-color: #f1f5f9;
+            color: #cbd5e1;
+            border: 1px solid #e2e8f0;
+            cursor: not-allowed;
+        }
+
+        .is-today {
+            border: 3px solid #F58220 !important;
+        }
+
+        .empty-day {
+            background-color: transparent;
+            border: 1px dashed #cbd5e1;
+            opacity: 0.5;
+        }
+
+        .hidden-admin {
+            display: none;
+        }
+
+        input,
+        textarea,
+        select {
+            background-color: #f8fafc !important;
+            color: #1f2937 !important;
+            opacity: 1 !important;
+        }
+
+        /* --- JKP/JTKD Placeholder Color Fix --- */
+        #jkp_jtkd:invalid {
+            color: #9ca3af !important;
+            /* Turns 'Select your JKP/JTKD' to Gray */
+        }
+
+        #jkp_jtkd:valid {
+            color: #1f2937 !important;
+            /* Turns back to Black when a choice is made */
+        }
+
+        #jkp_jtkd option {
+            color: #1f2937;
+            /* Keeps the list items black */
+        }
+
+        /* Fix: Force date input placeholder (dd/mm/yyyy) to grey */
+        input[type="date"]::-webkit-datetime-edit-text,
+        input[type="date"]::-webkit-datetime-edit-month-field,
+        input[type="date"]::-webkit-datetime-edit-day-field,
+        input[type="date"]::-webkit-datetime-edit-year-field {
+            color: #9ca3af;
+        }
+
+        input[type="date"].has-value::-webkit-datetime-edit-text,
+        input[type="date"].has-value::-webkit-datetime-edit-month-field,
+        input[type="date"].has-value::-webkit-datetime-edit-day-field,
+        input[type="date"].has-value::-webkit-datetime-edit-year-field {
+            color: #1f2937;
+        }
+
+        .admin-slider-container {
+            height: 60px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .admin-slider-track {
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .admin-slide {
+            height: 60px;
+            display: flex;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .admin-note-badge {
+            background-color: #fef08a;
+            color: #854d0e;
+            font-size: 7px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            margin-top: 2px;
+            font-weight: 800;
+            border: 1px solid #facc15;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen">
+
+    <nav
+        class="bg-white shadow-xl px-6 py-6 lg:px-10 lg:py-8 flex flex-col lg:flex-row justify-between items-center z-50">
+        <div
+            class="flex flex-col lg:flex-row items-center text-center lg:text-left space-y-4 lg:space-y-0 lg:space-x-6">
+            <img src="logo-kktaz.png" alt="Logo" class="h-16 lg:h-20 w-auto">
+            <div>
+                <h1 class="text-xl lg:text-3xl font-extrabold text-gray-800 leading-tight tracking-tight uppercase">
+                    Tun Ahmad Zaidi Residential College
+                </h1>
+                <p
+                    class="text-xs lg:text-sm font-bold text-orange-500 tracking-[0.1em] lg:tracking-[0.2em] uppercase mt-1">
+                    Student Camera Lending Portal
+                </p>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto w-full p-4 lg:p-6 grid grid-cols-1 lg:grid-cols-3 gap-8 mt-4">
+        <div class="lg:col-span-2 space-y-8">
+            <div class="bg-white p-5 lg:p-8 curved-box shadow-2xl border border-orange-200">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
+                    <div class="text-center sm:text-left">
+                        <h2 class="text-lg lg:text-xl font-bold text-gray-800 uppercase tracking-tight">Availability
+                            Calendar</h2>
+                        <p class="text-[10px] lg:text-xs text-gray-400 mt-1 uppercase font-semibold">Select start and
+                            end dates below</p>
+                    </div>
+                    <div class="flex items-center space-x-3 bg-gray-50 rounded-full p-1 border">
+                        <button onclick="changeMonth(-1)"
+                            class="p-2 hover:bg-gray-200 rounded-full transition font-bold">←</button>
+                        <span id="currentMonthYear"
+                            class="text-xs lg:text-sm font-black text-purple-800 min-w-[120px] text-center uppercase tracking-widest"></span>
+                        <button onclick="changeMonth(1)"
+                            class="p-2 hover:bg-gray-200 rounded-full transition font-bold">→</button>
+                    </div>
+                </div>
+                <div
+                    class="grid grid-cols-7 gap-1 lg:gap-2 text-center text-[10px] lg:text-xs font-black text-gray-400 uppercase mb-4">
+                    <div>Mon</div>
+                    <div>Tue</div>
+                    <div>Wed</div>
+                    <div>Thu</div>
+                    <div>Fri</div>
+                    <div class="text-red-400">Sat</div>
+                    <div class="text-red-400">Sun</div>
+                </div>
+                <div id="calendarGrid" class="grid grid-cols-7 gap-1 lg:gap-3"></div>
+                <div class="mt-8 flex flex-col sm:flex-row items-center justify-between border-t pt-6 gap-4">
+                    <div class="flex flex-wrap justify-center gap-4 text-[10px] font-bold uppercase tracking-tighter">
+                        <div class="flex items-center"><span class="w-3 h-3 bg-green-400 rounded-full mr-2"></span>
+                            Available</div>
+                        <div class="flex items-center"><span class="w-3 h-3 bg-red-400 rounded-full mr-2"></span>
+                            Reserved</div>
+                        <div class="flex items-center"><span class="w-3 h-3 bg-purple-700 rounded-full mr-2"></span>
+                            Selected</div>
+                        <div class="flex items-center"><span class="w-3 h-3 bg-slate-200 rounded-full mr-2"></span> Past
+                            Date</div>
+                    </div>
+                    <button onclick="clearSelection()"
+                        class="px-4 py-2 bg-red-50 text-red-500 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-red-500 hover:text-white transition">
+                        ✕ Reset Selection
+                    </button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div class="bg-white p-6 curved-box border border-orange-200 flex items-center shadow-xl">
+                    <div
+                        class="w-12 h-12 lg:w-14 lg:h-14 kk-purple rounded-2xl flex items-center justify-center text-white mr-5 shadow-lg text-xl lg:text-2xl">
+                        📸</div>
+                    <div>
+                        <h4 class="font-black text-gray-800 text-base lg:text-lg uppercase">Sony A6400</h4>
+                        <p class="text-xs text-gray-500 font-medium">Mirrorless System Camera</p>
+                    </div>
+                </div>
+                <div class="bg-white p-6 curved-box border border-orange-200 shadow-xl overflow-hidden">
+                    <div class="flex items-start">
+                        <div
+                            class="w-12 h-12 lg:w-14 lg:h-14 kk-purple rounded-2xl flex items-center justify-center text-white mr-5 shadow-lg text-xl lg:text-2xl shrink-0">
+                            📞</div>
+                        <div class="admin-slider-container w-full">
+                            <div class="admin-slider-track" id="sliderTrack">
+                                <div class="admin-slide">
+                                    <div>
+                                        <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest mb-1">
+                                            ADMIN CONTACT</p>
+                                        <h4 class="font-bold text-gray-800 text-base uppercase">AZREEL</h4>
+                                        <a href="tel:+60195773109"
+                                            class="text-xs text-purple-700 font-black hover:underline tracking-tighter">019-577
+                                            3109</a>
+                                    </div>
+                                </div>
+                                <div class="admin-slide">
+                                    <div>
+                                        <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest mb-1">
+                                            ADMIN CONTACT</p>
+                                        <h4 class="font-bold text-gray-800 text-base uppercase">DELIMA</h4>
+                                        <a href="tel:+60194354532"
+                                            class="text-xs text-purple-700 font-black hover:underline tracking-tighter">019-435
+                                            4532</a>
+                                    </div>
+                                </div>
+                                <div class="admin-slide">
+                                    <div>
+                                        <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest mb-1">
+                                            ADMIN CONTACT</p>
+                                        <h4 class="font-bold text-gray-800 text-base uppercase">DANISH</h4>
+                                        <a href="tel:+60177373358"
+                                            class="text-xs text-purple-700 font-black hover:underline tracking-tighter">017-737
+                                            3358</a>
+                                    </div>
+                                </div>
+                                <div class="admin-slide">
+                                    <div>
+                                        <p class="text-[9px] font-black text-orange-500 uppercase tracking-widest mb-1">
+                                            ADMIN CONTACT</p>
+                                        <h4 class="font-bold text-gray-800 text-base uppercase">HARITH</h4>
+                                        <a href="tel:+60178729707"
+                                            class="text-xs text-purple-700 font-black hover:underline tracking-tighter">017-872
+                                            9707</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 lg:p-8 curved-box shadow-2xl border border-orange-200">
+                <div class="flex items-center mb-6">
+                    <div
+                        class="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center text-white mr-3 font-bold">
+                        !</div>
+                    <h2 class="text-lg font-black text-gray-800 uppercase tracking-tight">Important Lending Rules</h2>
+                </div>
+                <ul class="space-y-4">
+                    <li class="flex items-start">
+                        <span class="text-purple-700 mr-3 font-bold">01.</span>
+                        <p class="text-xs lg:text-sm text-gray-600 font-semibold uppercase tracking-tight">Camera must
+                            be returned in the <span class="text-orange-600 font-black">same condition</span> it was
+                            received.</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-purple-700 mr-3 font-bold">02.</span>
+                        <p class="text-xs lg:text-sm text-gray-600 font-semibold uppercase tracking-tight">Users are
+                            <span class="text-orange-600 font-black">fully responsible</span> for any physical damage or
+                            loss of equipment.</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-purple-700 mr-3 font-bold">03.</span>
+                        <p class="text-xs lg:text-sm text-gray-600 font-semibold uppercase tracking-tight">Lending
+                            period is strictly <span class="text-orange-600 font-black">3 days maximum</span> unless
+                            approved by management.</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-purple-700 mr-3 font-bold">04.</span>
+                        <p class="text-xs lg:text-sm text-gray-600 font-semibold uppercase tracking-tight">Late returns
+                            may result in a <span class="text-orange-600 font-black">suspension</span> from future
+                            lending privileges.</p>
+                    </li>
+                    <li class="flex items-start">
+                        <span class="text-purple-700 mr-3 font-bold">05.</span>
+                        <p class="text-xs lg:text-sm text-gray-600 font-semibold uppercase tracking-tight">Please <span
+                                class="text-orange-600 font-black">contact the admin</span> one day before pick up the
+                            camera.</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="lg:col-span-1">
+            <div class="bg-white p-6 lg:p-8 curved-box shadow-2xl border border-orange-200 lg:sticky lg:top-6">
+                <h2 class="text-xl font-black text-gray-800 mb-2 uppercase tracking-tighter">Lending Form</h2>
+                <p class="text-xs text-gray-500 mb-6 font-medium">Apply for equipment usage below.</p>
+                <form id="rentalForm" class="space-y-4">
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Full Name</label>
+                        <input type="text" id="studentName" name="from_name" required placeholder="As per Matric Card"
+                            class="w-full p-3 text-sm border border-gray-200 curved-box focus:ring-2 focus:ring-purple-500 outline-none transition font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Matric
+                            Number</label>
+                        <input type="text" id="matricNo" name="matric_no" required placeholder="e.g. 71234"
+                            class="w-full p-3 text-sm border border-gray-200 curved-box focus:ring-2 focus:ring-purple-500 outline-none transition font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">Contact
+                            Number</label>
+                        <input type="tel" id="contactNo" name="contact_no" required placeholder="e.g. 0123456789"
+                            class="w-full p-3 text-sm border border-gray-200 curved-box focus:ring-2 focus:ring-purple-500 outline-none transition font-semibold">
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">JKP / JTKD</label>
+                        <select id="jkp_jtkd" name="jkp_jtkd" required
+                            class="w-full p-3 text-sm border border-gray-200 curved-box focus:ring-2 focus:ring-purple-500 outline-none transition font-semibold appearance-none">
+                            <option value="" disabled selected>Select your JKP/JTKD</option>
+                            <option value="JTKD MULTIMEDIA & REKAAN">JTKD MULTIMEDIA & REKAAN</option>
+                            <option value="JTKD PROGRAM & PROTOKOL">JTKD PROGRAM & PROTOKOL</option>
+                            <option value="JTKD TEKNIKAL">JTKD TEKNIKAL</option>
+                            <option value="JTKD DOKUMENTASI">JTKD DOKUMENTASI</option>
+                            <option value="JKP ADIN">JKP ADIN</option>
+                            <option value="JKP SENI">JKP SENI</option>
+                            <option value="JKP KEP">JKP KEP</option>
+                            <option value="JKP SUKAN">JKP SUKAN</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">PROJECT
+                            NAME</label>
+                        <textarea id="projectName" name="project_details" required placeholder="Project Name..."
+                            rows="2"
+                            class="w-full p-3 text-sm border border-gray-200 curved-box focus:ring-2 focus:ring-purple-500 outline-none transition font-semibold"></textarea>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Lending Period</label>
+                        <div class="flex flex-col sm:grid sm:grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1 ml-1">Pick
+                                    Up</label>
+                                <input type="date" id="startDate" name="start_date" required
+                                    onchange="this.classList.add('has-value')"
+                                    class="w-full p-2 text-[10px] border border-gray-200 rounded-xl outline-none font-bold">
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-[9px] font-bold text-gray-400 uppercase mb-1 ml-1">Return</label>
+                                <input type="date" id="endDate" name="end_date" required
+                                    onchange="this.classList.add('has-value')"
+                                    class="w-full p-2 text-[10px] border border-gray-200 rounded-xl outline-none font-bold">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="pt-4">
+                        <button type="submit" id="submitBtn"
+                            class="w-full kk-purple text-white py-4 font-black curved-box hover:brightness-110 active:scale-95 transition shadow-lg uppercase tracking-widest text-xs">
+                            SUBMIT APPLICATION
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <section id="owner-view" class="max-w-7xl mx-auto w-full p-4 lg:p-6 mt-12 mb-20 hidden-admin">
+        <div class="bg-white p-6 lg:p-8 curved-box shadow-2xl border-4 border-purple-100 space-y-10">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                <h2 class="text-xl font-black text-gray-800 uppercase italic">Admin Dashboard</h2>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <button onclick="downloadCSV()"
+                        class="text-purple-600 text-[10px] font-black uppercase hover:underline">Export CSV</button>
+                    <button onclick="clearLogs()"
+                        class="text-red-500 text-[10px] font-black uppercase hover:underline">Wipe Data</button>
+                    <button onclick="lockDashboard()"
+                        class="text-gray-400 text-[10px] font-black uppercase hover:underline">Logout</button>
+                </div>
+            </div>
+            <div class="border rounded-3xl p-6 bg-slate-50">
+                <h3 class="text-sm font-black text-gray-600 uppercase mb-4 tracking-widest">Borrower Activity Calendar
+                </h3>
+                <div id="adminCalendarGrid" class="grid grid-cols-7 gap-2"></div>
+                <p class="text-[9px] mt-2 text-gray-400 font-bold uppercase italic">* Click on Red dates to view
+                    borrower details. Click any date to add Admin Notes.</p>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left min-w-[800px]">
+                    <thead class="bg-gray-50 border-b">
+                        <tr>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Borrower</th>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Matric</th>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Contact</th>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase">JKP / JTKD</th>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Project</th>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase text-center">Rental Period
+                            </th>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase text-center">Manage</th>
+                        </tr>
+                    </thead>
+                    <tbody id="logTableBody" class="text-xs font-semibold"></tbody>
+                </table>
+                <div id="emptyMsg" class="p-10 text-center text-gray-400 italic font-bold">No active applications in
+                    database.</div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="mt-auto p-12 text-center text-white text-[10px] uppercase font-black tracking-widest opacity-80">
+        <p>&copy; 2026 Kolej Kediaman Tun Ahmad Zaidi (KKTAZ)</p>
+        <button onclick="checkAdmin()"
+            class="mt-4 text-white font-medium opacity-30 hover:opacity-100 transition uppercase tracking-tighter">COLLEGE
+            ADMIN LOGIN</button>
+    </footer>
+
+    <script>
+        const supabaseUrl = 'https://xdptsudsfnaiuymptzgc.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhkcHRzdWRzZm5haXV5bXB0emdjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxMDE3NjMsImV4cCI6MjA5MDY3Nzc2M30.4LT2IWzrNy0UbfEjNVnDqeAO1JNi8NTYhdz15n17rAI';
+        const _supabase = supabase.createClient(supabaseUrl, supabaseKey);
+
+        (function () { emailjs.init("YEA-wIiSNGLWTepQT"); })();
+
+        const ADMIN_PASSWORD = "Harith2006";
+        let currentDate = new Date();
+        currentDate.setDate(1);
+        let selectionStart = null;
+        let selectionEnd = null;
+        let globalLogs = [];
+        let adminNotes = JSON.parse(localStorage.getItem('kktaz_admin_notes') || '{}');
+
+        // Admin Slider logic
+        const track = document.getElementById('sliderTrack');
+        const slides = document.querySelectorAll('.admin-slide');
+        let currentIdx = 0;
+        const firstClone = slides[0].cloneNode(true);
+        track.appendChild(firstClone);
+
+        function moveSlider() {
+            currentIdx++;
+            track.style.transition = "transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)";
+            track.style.transform = `translateY(-${currentIdx * 60}px)`;
+            if (currentIdx >= slides.length) {
+                setTimeout(() => {
+                    track.style.transition = "none";
+                    currentIdx = 0;
+                    track.style.transform = `translateY(0)`;
+                }, 600);
+            }
+        }
+        setInterval(moveSlider, 3000);
+
+        function getTodayStr() {
+            const now = new Date();
+            return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+        }
+
+        async function saveAdminNote(dateStr, note) {
+            adminNotes[dateStr] = note;
+            localStorage.setItem('kktaz_admin_notes', JSON.stringify(adminNotes));
+            await _supabase.from('admin_notes').upsert([{ date: dateStr, note: note }]);
+            loadLogs();
+        }
+
+        async function fetchAdminNotes() {
+            const { data, error } = await _supabase.from('admin_notes').select('*');
+            if (!error && data) {
+                data.forEach(n => adminNotes[n.date] = n.note);
+            }
+        }
+
+        function checkAdmin() {
+            const pass = prompt("Admin Password Required:");
+            if (pass === ADMIN_PASSWORD) {
+                document.getElementById('owner-view').classList.remove('hidden-admin');
+                document.getElementById('owner-view').scrollIntoView({ behavior: 'smooth' });
+                loadLogs();
+            } else { alert("Access Denied."); }
+        }
+
+        function lockDashboard() {
+            document.getElementById('owner-view').classList.add('hidden-admin');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function downloadCSV() {
+            if (globalLogs.length === 0) return;
+            const csvRows = [["Student", "Matric", "Contact", "JKP/JTKD", "Project", "Start", "End"]];
+            globalLogs.forEach(l => csvRows.push([`"${l.student_name}"`, l.matric_no, `"${l.contact_no}"`, `"${l.jkp_jtkd}"`, `"${l.project_details}"`, l.start_date, l.end_date]));
+            const blob = new Blob([csvRows.map(r => r.join(",")).join("\n")], { type: 'text/csv' });
+            const a = document.createElement("a");
+            a.href = URL.createObjectURL(blob);
+            a.download = `KKTAZ_Lending_Data.csv`;
+            a.click();
+        }
+
+        function clearSelection() {
+            selectionStart = selectionEnd = null;
+            const sIn = document.getElementById('startDate');
+            const eIn = document.getElementById('endDate');
+            sIn.value = ""; eIn.value = "";
+            sIn.classList.remove('has-value'); eIn.classList.remove('has-value');
+            renderCalendar();
+        }
+
+        function handleDateClick(dateStr) {
+            if (dateStr < getTodayStr()) return;
+            const startInput = document.getElementById('startDate');
+            const endInput = document.getElementById('endDate');
+            if (!selectionStart || (selectionStart && selectionEnd)) {
+                selectionStart = dateStr; selectionEnd = null;
+                startInput.value = dateStr; endInput.value = "";
+                startInput.classList.add('has-value');
+                endInput.classList.remove('has-value');
+            } else {
+                if (new Date(dateStr) < new Date(selectionStart)) {
+                    selectionStart = dateStr; startInput.value = dateStr;
+                    startInput.classList.add('has-value');
+                } else {
+                    selectionEnd = dateStr; endInput.value = dateStr;
+                    endInput.classList.add('has-value');
+                }
+            }
+            renderCalendar();
+        }
+
+        function renderCalendar() {
+            const grid = document.getElementById('calendarGrid');
+            const label = document.getElementById('currentMonthYear');
+            grid.innerHTML = '';
+            const todayStr = getTodayStr();
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            label.innerText = new Intl.DateTimeFormat('en-US', { month: 'short', year: 'numeric' }).format(currentDate);
+            const firstDay = new Date(year, month, 1).getDay();
+            const offset = (firstDay === 0 ? 6 : firstDay - 1);
+            const daysCount = new Date(year, month + 1, 0).getDate();
+            for (let i = 0; i < offset; i++) {
+                grid.appendChild(Object.assign(document.createElement('div'), { className: 'calendar-day empty-day p-2 curved-box' }));
+            }
+            for (let d = 1; d <= daysCount; d++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const log = globalLogs.find(l => dateStr >= l.start_date && dateStr <= l.end_date);
+                const isBooked = !!log;
+                const isSel = (dateStr === selectionStart || dateStr === selectionEnd);
+                const inRange = selectionStart && selectionEnd && new Date(dateStr) > new Date(selectionStart) && new Date(dateStr) < new Date(selectionEnd);
+                const isPast = dateStr < todayStr;
+                const note = adminNotes[dateStr];
+                const el = document.createElement('div');
+                let statusCls = isBooked ? 'status-booked' : 'status-available';
+                let statusText = isBooked ? log.project_details.toUpperCase() : 'Available';
+                if (isPast) { statusCls = 'status-past'; statusText = 'Expired'; }
+                else if (isSel) { statusCls = 'status-selected'; statusText = 'Selected'; }
+                else if (inRange) { statusCls = 'status-range'; statusText = 'Selected'; }
+                if (dateStr === todayStr) statusCls += ' is-today';
+                el.className = `calendar-day p-2 lg:p-3 curved-box text-[8px] lg:text-xs font-black shadow-sm ${statusCls}`;
+                el.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <span>${d}</span>
+                        ${dateStr === todayStr ? '<span class="text-[6px] text-orange-600 bg-orange-100 px-1 rounded">TODAY</span>' : ''}
+                    </div>
+                    <div class="flex flex-col">
+                        <div class="text-[5px] lg:text-[7px] uppercase tracking-tighter font-black opacity-90 truncate">${statusText}</div>
+                        ${note ? `<div class="admin-note-badge truncate">${note}</div>` : ''}
+                    </div>
+                `;
+                if (!isBooked && !isPast) el.onclick = () => handleDateClick(dateStr);
+                grid.appendChild(el);
+            }
+        }
+
+        function renderAdminCalendar() {
+            const grid = document.getElementById('adminCalendarGrid');
+            grid.innerHTML = '';
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const firstDay = new Date(year, month, 1).getDay();
+            const offset = (firstDay === 0 ? 6 : firstDay - 1);
+            const daysCount = new Date(year, month + 1, 0).getDate();
+            for (let i = 0; i < offset; i++) grid.appendChild(document.createElement('div'));
+            for (let d = 1; d <= daysCount; d++) {
+                const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                const borrower = globalLogs.find(l => dateStr >= l.start_date && dateStr <= l.end_date);
+                const note = adminNotes[dateStr];
+                const el = document.createElement('div');
+                el.className = `h-10 flex flex-col items-center justify-center rounded-lg text-[9px] font-bold cursor-pointer transition relative ${borrower ? 'bg-red-500 text-white' : 'bg-slate-200 text-slate-400'} ${note ? 'ring-2 ring-yellow-400' : ''}`;
+                el.innerHTML = `<span>${d}</span>${note ? '<span class="text-[5px] absolute bottom-0.5">📜</span>' : ''}`;
+                el.onclick = () => {
+                    const action = prompt(`DATE: ${dateStr}\n\n1. View Details\n2. Add/Edit Admin Note\n3. Clear Admin Note\n\nEnter choice:`);
+                    if (action === "1" && borrower) {
+                        alert(`BORROWER:\nName: ${borrower.student_name}\nJKP/JTKD: ${borrower.jkp_jtkd}\nMatric: ${borrower.matric_no}\nPhone: ${borrower.contact_no}\nProject: ${borrower.project_details}`);
+                    } else if (action === "2") {
+                        const newNote = prompt("Admin note for users:", note || "");
+                        if (newNote !== null) saveAdminNote(dateStr, newNote);
+                    } else if (action === "3") { saveAdminNote(dateStr, ""); }
+                };
+                grid.appendChild(el);
+            }
+        }
+
+        function changeMonth(s) { currentDate.setMonth(currentDate.getMonth() + s); renderCalendar(); renderAdminCalendar(); }
+
+        async function loadLogs() {
+            await fetchAdminNotes();
+            const { data, error } = await _supabase.from('bookings').select('*').order('start_date', { ascending: true });
+            if (error) return;
+            globalLogs = data;
+            const body = document.getElementById('logTableBody');
+            body.innerHTML = '';
+            document.getElementById('emptyMsg').style.display = globalLogs.length ? 'none' : 'block';
+            globalLogs.forEach(l => {
+                const rowHTML = `
+                    <tr class="border-b hover:bg-slate-50 transition">
+                        <td class="p-4 font-black text-purple-900 uppercase">${l.student_name}</td>
+                        <td class="p-4 font-mono text-gray-500">${l.matric_no}</td>
+                        <td class="p-4 font-bold text-orange-600 text-[10px]">${l.contact_no}</td>
+                        <td class="p-4 text-gray-500 font-bold text-[10px] uppercase">${l.jkp_jtkd || 'N/A'}</td>
+                        <td class="p-4 italic text-gray-400 max-w-xs truncate">${l.project_details}</td>
+                        <td class="p-4 text-center font-black text-gray-700">${l.start_date} — ${l.end_date}</td>
+                        <td class="p-4 text-center">
+                            <button onclick="cancelB('${l.id}')" class="bg-red-50 text-red-500 p-2 rounded-lg font-black uppercase text-[8px] hover:bg-red-500 hover:text-white transition">Remove</button>
+                        </td>
+                    </tr>`;
+                body.insertAdjacentHTML('beforeend', rowHTML);
+            });
+            renderCalendar();
+            renderAdminCalendar();
+        }
+
+        async function cancelB(id) {
+            if (confirm("Permanently remove this application?")) {
+                const { error } = await _supabase.from('bookings').delete().eq('id', id);
+                if (!error) { alert("Deleted."); loadLogs(); }
+            }
+        }
+
+        document.getElementById('rentalForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const b = document.getElementById('submitBtn');
+            const start = document.getElementById('startDate').value;
+            const end = document.getElementById('endDate').value;
+            if (new Date(end) < new Date(start)) { alert("Error: Invalid Date Range."); return; }
+            b.innerText = "PROCESSING..."; b.disabled = true;
+            try {
+                await emailjs.sendForm('service_h03gqag', 'template_1o1sek2', this);
+                const { error } = await _supabase.from('bookings').insert([{
+                    student_name: document.getElementById('studentName').value,
+                    matric_no: document.getElementById('matricNo').value,
+                    contact_no: document.getElementById('contactNo').value,
+                    project_details: document.getElementById('projectName').value,
+                    jkp_jtkd: document.getElementById('jkp_jtkd').value,
+                    start_date: start,
+                    end_date: end
+                }]);
+                if (error) throw error;
+                alert('Application Submitted!');
+                this.reset();
+                this.querySelectorAll('input[type="date"]').forEach(el => el.classList.remove('has-value'));
+                loadLogs();
+            } catch (err) { alert("Failed: " + err.message); }
+            finally { b.innerText = "SUBMIT APPLICATION"; b.disabled = false; }
+        });
+
+        async function clearLogs() {
+            if (confirm("DANGER: Wipe all database records?")) {
+                const { error } = await _supabase.from('bookings').delete().not('id', 'is', null);
+                if (!error) loadLogs();
+            }
+        }
+
+        window.onload = () => { loadLogs(); };
+    </script>
+</body>
+
+</html>
