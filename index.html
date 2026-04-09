@@ -107,23 +107,18 @@
             opacity: 1 !important;
         }
 
-        /* --- JKP/JTKD Placeholder Color Fix --- */
         #jkp_jtkd:invalid {
             color: #9ca3af !important;
-            /* Turns 'Select your JKP/JTKD' to Gray */
         }
 
         #jkp_jtkd:valid {
             color: #1f2937 !important;
-            /* Turns back to Black when a choice is made */
         }
 
         #jkp_jtkd option {
             color: #1f2937;
-            /* Keeps the list items black */
         }
 
-        /* Fix: Force date input placeholder (dd/mm/yyyy) to grey */
         input[type="date"]::-webkit-datetime-edit-text,
         input[type="date"]::-webkit-datetime-edit-month-field,
         input[type="date"]::-webkit-datetime-edit-day-field,
@@ -484,7 +479,6 @@
         let globalLogs = [];
         let adminNotes = JSON.parse(localStorage.getItem('kktaz_admin_notes') || '{}');
 
-        // Admin Slider logic
         const track = document.getElementById('sliderTrack');
         const slides = document.querySelectorAll('.admin-slide');
         let currentIdx = 0;
@@ -694,7 +688,29 @@
             const b = document.getElementById('submitBtn');
             const start = document.getElementById('startDate').value;
             const end = document.getElementById('endDate').value;
-            if (new Date(end) < new Date(start)) { alert("Error: Invalid Date Range."); return; }
+
+            // Date Picker Logic Validation
+            if (new Date(end) < new Date(start)) {
+                alert("Error: Return date cannot be before Pick Up date.");
+                return;
+            }
+
+            // COLLISION CHECK: Check if any date in the selected range is already booked
+            const selectedStart = new Date(start);
+            const selectedEnd = new Date(end);
+
+            const isOverlapping = globalLogs.some(booking => {
+                const bookingStart = new Date(booking.start_date);
+                const bookingEnd = new Date(booking.end_date);
+                // Standard overlap formula: (StartA <= EndB) and (EndA >= StartB)
+                return (selectedStart <= bookingEnd && selectedEnd >= bookingStart);
+            });
+
+            if (isOverlapping) {
+                alert("Error: The camera is already reserved during your selected dates. Please check the Availability Calendar.");
+                return;
+            }
+
             b.innerText = "PROCESSING..."; b.disabled = true;
             try {
                 await emailjs.sendForm('service_h03gqag', 'template_1o1sek2', this);
