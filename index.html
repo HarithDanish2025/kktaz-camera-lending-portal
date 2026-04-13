@@ -122,14 +122,22 @@
         input[type="date"]::-webkit-datetime-edit-text,
         input[type="date"]::-webkit-datetime-edit-month-field,
         input[type="date"]::-webkit-datetime-edit-day-field,
-        input[type="date"]::-webkit-datetime-edit-year-field {
+        input[type="date"]::-webkit-datetime-edit-year-field,
+        input[type="time"]::-webkit-datetime-edit-text,
+        input[type="time"]::-webkit-datetime-edit-hour-field,
+        input[type="time"]::-webkit-datetime-edit-minute-field,
+        input[type="time"]::-webkit-datetime-edit-ampm-field {
             color: #9ca3af;
         }
 
         input[type="date"].has-value::-webkit-datetime-edit-text,
         input[type="date"].has-value::-webkit-datetime-edit-month-field,
         input[type="date"].has-value::-webkit-datetime-edit-day-field,
-        input[type="date"].has-value::-webkit-datetime-edit-year-field {
+        input[type="date"].has-value::-webkit-datetime-edit-year-field,
+        input[type="time"].has-value::-webkit-datetime-edit-text,
+        input[type="time"].has-value::-webkit-datetime-edit-hour-field,
+        input[type="time"].has-value::-webkit-datetime-edit-minute-field,
+        input[type="time"].has-value::-webkit-datetime-edit-ampm-field {
             color: #1f2937;
         }
 
@@ -313,7 +321,8 @@
                         <span class="text-purple-700 mr-3 font-bold">02.</span>
                         <p class="text-xs lg:text-sm text-gray-600 font-semibold uppercase tracking-tight">Users are
                             <span class="text-orange-600 font-black">fully responsible</span> for any physical damage or
-                            loss of equipment.</p>
+                            loss of equipment.
+                        </p>
                     </li>
                     <li class="flex items-start">
                         <span class="text-purple-700 mr-3 font-bold">03.</span>
@@ -385,20 +394,42 @@
                             rows="2"
                             class="w-full p-3 text-sm border border-gray-200 curved-box focus:ring-2 focus:ring-purple-500 outline-none transition font-semibold"></textarea>
                     </div>
+                    <div>
+                        <label class="block text-[10px] font-black text-gray-400 uppercase mb-1 ml-1">REASON FOR
+                            BORROWING</label>
+                        <textarea id="borrowReason" name="borrow_reason" required placeholder="Reason for borrowing..."
+                            rows="2"
+                            class="w-full p-3 text-sm border border-gray-200 curved-box focus:ring-2 focus:ring-purple-500 outline-none transition font-semibold"></textarea>
+                    </div>
                     <div class="space-y-2">
-                        <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Lending Period</label>
-                        <div class="flex flex-col sm:grid sm:grid-cols-2 gap-2">
+                        <label class="block text-[10px] font-black text-gray-400 uppercase ml-1">Lending Period &
+                            Time</label>
+                        <div class="grid grid-cols-2 gap-2">
                             <div>
-                                <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1 ml-1">Pick
-                                    Up</label>
+                                <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1 ml-1">Pick Up
+                                    Date</label>
                                 <input type="date" id="startDate" name="start_date" required
                                     onchange="this.classList.add('has-value')"
                                     class="w-full p-2 text-[10px] border border-gray-200 rounded-xl outline-none font-bold">
                             </div>
                             <div>
-                                <label
-                                    class="block text-[9px] font-bold text-gray-400 uppercase mb-1 ml-1">Return</label>
+                                <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1 ml-1">Pick Up
+                                    Time</label>
+                                <input type="time" id="pickUpTime" name="pickup_time" required
+                                    onchange="this.classList.add('has-value')"
+                                    class="w-full p-2 text-[10px] border border-gray-200 rounded-xl outline-none font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1 ml-1">Return
+                                    Date</label>
                                 <input type="date" id="endDate" name="end_date" required
+                                    onchange="this.classList.add('has-value')"
+                                    class="w-full p-2 text-[10px] border border-gray-200 rounded-xl outline-none font-bold">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] font-bold text-gray-400 uppercase mb-1 ml-1">Return
+                                    Time</label>
+                                <input type="time" id="returnTime" name="return_time" required
                                     onchange="this.classList.add('has-value')"
                                     class="w-full p-2 text-[10px] border border-gray-200 rounded-xl outline-none font-bold">
                             </div>
@@ -436,16 +467,16 @@
                     borrower details. Click any date to add Admin Notes.</p>
             </div>
             <div class="overflow-x-auto">
-                <table class="w-full text-left min-w-[800px]">
+                <table class="w-full text-left min-w-[1000px]">
                     <thead class="bg-gray-50 border-b">
                         <tr>
                             <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Borrower</th>
                             <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Matric</th>
                             <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Contact</th>
-                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase">JKP / JTKD</th>
-                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Project</th>
-                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase text-center">Rental Period
-                            </th>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase">JKP/JTKD</th>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase">Project & Reason</th>
+                            <th class="p-4 text-[10px] font-black text-gray-400 uppercase text-center">Rental Period &
+                                Time</th>
                             <th class="p-4 text-[10px] font-black text-gray-400 uppercase text-center">Manage</th>
                         </tr>
                     </thead>
@@ -534,8 +565,8 @@
 
         function downloadCSV() {
             if (globalLogs.length === 0) return;
-            const csvRows = [["Student", "Matric", "Contact", "JKP/JTKD", "Project", "Start", "End"]];
-            globalLogs.forEach(l => csvRows.push([`"${l.student_name}"`, l.matric_no, `"${l.contact_no}"`, `"${l.jkp_jtkd}"`, `"${l.project_details}"`, l.start_date, l.end_date]));
+            const csvRows = [["Student", "Matric", "Contact", "JKP/JTKD", "Project", "Reason", "Start Date", "Pick-up", "End Date", "Return"]];
+            globalLogs.forEach(l => csvRows.push([`"${l.student_name}"`, l.matric_no, `"${l.contact_no}"`, `"${l.jkp_jtkd}"`, `"${l.project_details}"`, `"${l.borrow_reason}"`, l.start_date, l.pickup_time, l.end_date, l.return_time]));
             const blob = new Blob([csvRows.map(r => r.join(",")).join("\n")], { type: 'text/csv' });
             const a = document.createElement("a");
             a.href = URL.createObjectURL(blob);
@@ -637,7 +668,7 @@
                 el.onclick = () => {
                     const action = prompt(`DATE: ${dateStr}\n\n1. View Details\n2. Add/Edit Admin Note\n3. Clear Admin Note\n\nEnter choice:`);
                     if (action === "1" && borrower) {
-                        alert(`BORROWER:\nName: ${borrower.student_name}\nJKP/JTKD: ${borrower.jkp_jtkd}\nMatric: ${borrower.matric_no}\nPhone: ${borrower.contact_no}\nProject: ${borrower.project_details}`);
+                        alert(`BORROWER:\nName: ${borrower.student_name}\nJKP/JTKD: ${borrower.jkp_jtkd}\nMatric: ${borrower.matric_no}\nPhone: ${borrower.contact_no}\nProject: ${borrower.project_details}\nReason: ${borrower.borrow_reason}\nTime: ${borrower.pickup_time} to ${borrower.return_time}`);
                     } else if (action === "2") {
                         const newNote = prompt("Admin note for users:", note || "");
                         if (newNote !== null) saveAdminNote(dateStr, newNote);
@@ -664,8 +695,15 @@
                         <td class="p-4 font-mono text-gray-500">${l.matric_no}</td>
                         <td class="p-4 font-bold text-orange-600 text-[10px]">${l.contact_no}</td>
                         <td class="p-4 text-gray-500 font-bold text-[10px] uppercase">${l.jkp_jtkd || 'N/A'}</td>
-                        <td class="p-4 italic text-gray-400 max-w-xs truncate">${l.project_details}</td>
-                        <td class="p-4 text-center font-black text-gray-700">${l.start_date} — ${l.end_date}</td>
+                        <td class="p-4 italic text-gray-400 max-w-xs">
+                            <div class="font-bold truncate">${l.project_details}</div>
+                            <div class="text-[9px] text-gray-400 line-clamp-1">Reason: ${l.borrow_reason || 'N/A'}</div>
+                        </td>
+                        <td class="p-4 text-center font-black text-gray-700">
+                             <div>${l.start_date} (${l.pickup_time || '--:--'})</div>
+                             <div class="text-[9px] text-gray-400 uppercase tracking-tighter">— to —</div>
+                             <div>${l.end_date} (${l.return_time || '--:--'})</div>
+                        </td>
                         <td class="p-4 text-center">
                             <button onclick="cancelB('${l.id}')" class="bg-red-50 text-red-500 p-2 rounded-lg font-black uppercase text-[8px] hover:bg-red-500 hover:text-white transition">Remove</button>
                         </td>
@@ -689,20 +727,17 @@
             const start = document.getElementById('startDate').value;
             const end = document.getElementById('endDate').value;
 
-            // Date Picker Logic Validation
             if (new Date(end) < new Date(start)) {
                 alert("Error: Return date cannot be before Pick Up date.");
                 return;
             }
 
-            // COLLISION CHECK: Check if any date in the selected range is already booked
             const selectedStart = new Date(start);
             const selectedEnd = new Date(end);
 
             const isOverlapping = globalLogs.some(booking => {
                 const bookingStart = new Date(booking.start_date);
                 const bookingEnd = new Date(booking.end_date);
-                // Standard overlap formula: (StartA <= EndB) and (EndA >= StartB)
                 return (selectedStart <= bookingEnd && selectedEnd >= bookingStart);
             });
 
@@ -713,6 +748,7 @@
 
             b.innerText = "PROCESSING..."; b.disabled = true;
             try {
+                // Ensure your EmailJS template can handle borrow_reason, pickup_time, and return_time
                 await emailjs.sendForm('service_h03gqag', 'template_1o1sek2', this);
                 const { error } = await _supabase.from('bookings').insert([{
                     student_name: document.getElementById('studentName').value,
@@ -720,13 +756,16 @@
                     contact_no: document.getElementById('contactNo').value,
                     project_details: document.getElementById('projectName').value,
                     jkp_jtkd: document.getElementById('jkp_jtkd').value,
+                    borrow_reason: document.getElementById('borrowReason').value,
+                    pickup_time: document.getElementById('pickUpTime').value,
+                    return_time: document.getElementById('returnTime').value,
                     start_date: start,
                     end_date: end
                 }]);
                 if (error) throw error;
                 alert('Application Submitted!');
                 this.reset();
-                this.querySelectorAll('input[type="date"]').forEach(el => el.classList.remove('has-value'));
+                this.querySelectorAll('input[type="date"], input[type="time"]').forEach(el => el.classList.remove('has-value'));
                 loadLogs();
             } catch (err) { alert("Failed: " + err.message); }
             finally { b.innerText = "SUBMIT APPLICATION"; b.disabled = false; }
